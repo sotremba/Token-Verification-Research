@@ -12,8 +12,15 @@
     </div>
     <script>
 	    function onSignIn(token){
-		    console.log("id_token : " + token['credential'])
-        console.log("g_csrf_token : " + token['select_by'])
+		    console.log("id_token : " + token['credential']);
+        console.log("csrf_token : " + token['csrf_token']);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://localhost:5000');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+          console.log('Signed in as: ' + xhr.responseText);
+        };
+        xhr.send('idtoken=' + token);
       }
     </script>
   </body>

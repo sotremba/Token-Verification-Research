@@ -1,9 +1,11 @@
 from flask import Flask
+from flask import request
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def print_id_token():
-    print("Hello World")
-    return "output"
+    output = request.cookies.get('g_csrf_token')
+    print("Token Transfer Successful")
+    return str(output)
 
 
