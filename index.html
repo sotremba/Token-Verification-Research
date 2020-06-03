@@ -13,14 +13,15 @@
     <script>
 	    function onSignIn(token){
 		    console.log("id_token : " + token['credential']);
-        console.log("csrf_token : " + token['csrf_token']);
+        console.log("client_Id : " + token['clientId']);
+	console.log("select_by : " + token['select_by']);
         var xhr = new XMLHttpRequest();
         xhr.open('POST', 'http://localhost:5000');
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.onload = function() {
           console.log('Signed in as: ' + xhr.responseText);
         };
-        xhr.send('idtoken=' + token);
+        xhr.send('idtoken=' + token['credential']);
       }
     </script>
   </body>
