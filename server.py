@@ -1,11 +1,22 @@
 from flask import Flask
 from flask import request
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
-def print_id_token():
-    output = request.values.get('idtoken')
-    print("Token Transfer Successful")
-    return str(output)
+def verify_id_token():
+    print("Begin Token Verification")
+    token = request.values.get('id_token')
+    CLIENT_ID = request.values.get('client_id')
+    try:
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+            raise ValueError("Wrong Issuer")
 
-
+        userid = idinfo['sub']
+        return userid
+    except ValueError:
+        #Invalid Token
+        return "INVALID TOKEN"
