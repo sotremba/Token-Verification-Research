@@ -1,11 +1,16 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request, render_template
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
 app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
+def home_page():
+    print("Home Page")
+    return render_template('index.html')
+
+
+@app.route('/token', methods=['GET', 'POST'])
 def verify_id_token():
     print("Begin Token Verification")
     token = request.values.get('id_token')
