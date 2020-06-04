@@ -7,7 +7,7 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def home_page():
     print("Home Page")
-    return render_template('index.html')
+    return render_template('home.html')
 
 
 @app.route('/token', methods=['GET', 'POST'])
