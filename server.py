@@ -46,7 +46,7 @@ def is_user_registered(user_id):
 def home_page():
     """Display the home page of the site"""
     print("Home Page")
-    return render_template('home.html')
+    return render_template('onetap_home.html')
 
 
 @app.route('/token', methods=['GET', 'POST'])
