@@ -59,19 +59,19 @@ def handle_user():
 
     if user_info == "INVALID TOKEN":
         print(user_info)
-        return "Server was given an invalid 'id_token'" #Make invalid ID html page for redirect
+        return render_template('invalid_id.html')
 
     create_user_table()
     registered = is_user_registered(user_info['sub'])
     if registered:
-        return "Existing User"
+        return render_template('returning_user.html', name=user_info['given_name'])
     else:
         user_id = user_info['sub']
         given_name = user_info['given_name']
         family_name = user_info['family_name']
         email = user_info['email']
         insert_user(user_id, given_name, family_name, email) 
-        return "New user has been registered"
+        return render_template('new_user.html', name=given_name)
 
 
 def verify_id_token(token, CLIENT_ID):
