@@ -3,28 +3,13 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body style="background-color:powderblue;">
-    <h1>Token Verification Research Home Page</h1>
+    <h1>Token Verification Research OneTap Home Page</h1>
     <h2>Test site to research existing server-side token verification libraries provided by Google</h2>
     <div id="g_id_onload"
      data-client_id="443130310905-s9hq5vg9nbjctal1dlm2pf8ljb9vlbm3.apps.googleusercontent.com"
      data-context="signin"
      data-cancel_on_tap_outside="false"
-     data-callback="onSignIn">
+     data-login_uri="http://localhost:5000/onetap-token">
     </div>
-    <script>
-	    function onSignIn(token){
-		    console.log("id_token : " + token['credential']);
-        console.log("client_Id : " + token['clientId']);
-		    console.log("select_by : " + token['select_by']);
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://localhost:5000/token');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onload = function() {
-          console.log('Server Response:\n' + xhr.responseText);
-		document.write(xhr.responseText);
-        };
-        xhr.send('id_token=' + token['credential'] + '&client_id=' + token['clientId']);
-      }
-    </script>
   </body>
 </html>

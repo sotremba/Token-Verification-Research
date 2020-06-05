@@ -5,6 +5,7 @@ import sqlite3
 
 app = Flask(__name__)
 DB = './database.db'
+CLIENT_ID = "443130310905-s9hq5vg9nbjctal1dlm2pf8ljb9vlbm3.apps.googleusercontent.com"
 
 
 def open_db():
@@ -42,20 +43,26 @@ def is_user_registered(user_id):
     return user != None
 
 
-@app.route('/', methods=['GET', 'POST'])
-def home_page():
-    """Display the home page of the site"""
-    print("Home Page")
+@app.route('/button', methods=['GET', 'POST'])
+def button_home_page():
+    """Display the home page of the site that uses a traditional sign-in button"""
+    print("Button Home Page")
+    return render_template('button_home.html')
+
+
+@app.route('/onetap', methods=['GET', 'POST'])
+def onetap_home_page():
+    """Display the home page of the site that uses OneTap sign-in"""
+    print("OneTap Home Page")
     return render_template('onetap_home.html')
 
 
-@app.route('/token', methods=['GET', 'POST'])
+@app.route('/button-token', methods=['GET', 'POST'])
 def handle_user():
     """Handle a user request by signing them in if they are an existing user or registering them otherwise"""
     print('Handling User Request')
     token = request.values.get('id_token')
-    client_id = request.values.get('client_id')
-    user_info = verify_id_token(token, client_id)
+    user_info = verify_id_token(token, CLIENT_ID)
 
     if user_info == "INVALID TOKEN":
         print(user_info)
@@ -74,11 +81,45 @@ def handle_user():
         return render_template('new_user.html', name=given_name)
 
 
-def verify_id_token(token, CLIENT_ID):
+@app.route('/onetap-token', methods=['GET', 'POST'])
+def handle_onetap():
+    """Handle signing in when Google sends the token to our server directly"""
+    print('Handling User Request from OneTap')
+    #Verify CSRF doubel submit cookie
+    csrf_token_cookie = request.cookies.get('g_csrf_token')
+    if not csrf_token_cookie:
+        return "No CSRF token in Cookie"
+    csrf_token_body = request.cookies.get('g_csrf_token')
+    if not csrf_token_body:
+        return "No CSRF token in post body"
+    if csrf_token_body != csrf_token_cookie:
+        return "Failed to verify double submit cookie"
+
+    token = request.values.get('credential')
+    user_info = verify_id_token(token, CLIENT_ID)
+
+    if user_info == "INVALID TOKEN":
+        print(user_info)
+        return render_template('invalid_id.html')
+
+    create_user_table()
+    registered = is_user_registered(user_info['sub'])
+    if registered:
+        return render_template('returning_user.html', name=user_info['given_name'])
+    else:
+        user_id = user_info['sub']
+        given_name = user_info['given_name']
+        family_name = user_info['family_name']
+        email = user_info['email']
+        insert_user(user_id, given_name, family_name, email) 
+        return render_template('new_user.html', name=given_name)
+
+
+def verify_id_token(token, client_id):
     """Verify that a given id_token is valid and return the decoded user information if it is valid"""
     print("Begin Token Verification")
     try:
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), client_id)
         if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
             raise ValueError("Wrong Issuer")
 
@@ -86,3 +127,5 @@ def verify_id_token(token, CLIENT_ID):
 
     except ValueError:
         return "INVALID TOKEN"
+
+
